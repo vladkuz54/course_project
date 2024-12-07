@@ -1,0 +1,111 @@
+.datapage__content {
+    margin-bottom: 150px;
+    margin-top: 50px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.header__insert, .header__delete, .header__search {
+    display: flex;
+    align-items: center;
+}
+
+.datapage__content-result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    margin-bottom: 50px;
+
+}
+
+.datapage__content-result h2 {
+    margin-right: 30px;
+}
+
+.datapage__content-result-p {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #7f7f7fd1;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 500;
+    width: 100%;
+}
+
+.dataPage__tree {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+    background-color:  #c9dee8;
+    border-radius: 10px;
+    
+}
+
+.dataPage__content-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 50px;
+    position: fixed;
+    bottom: 0;
+    width: 1420px;	
+    height: fit-content;
+    background-color: #ffffff;
+    padding: 20px 0;
+}
+
+
+.animate-node {
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+
+.animate-delete {
+    animation: fadeOut 1.5s ease forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+.node {
+    transition: transform 1s ease;
+}
+
+.node circle {
+    transition: fill 1s ease;
+}
+
+.nil-node {
+    opacity: 0.5;
+}
+
+.nil-node text {
+    fill: gray;
+}
+
