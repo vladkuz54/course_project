@@ -29,7 +29,7 @@ class Graph:
 
 
     def graph_to_dict(self):
-        return [{"id": i, "edges": sorted(edges)} for i, edges in enumerate(self.adj) if edges or any(i in edge for edge in edges)]
+        return [{"id": i, "edges": edges} for i, edges in enumerate(self.adj) if edges or any(i in edge for edge in edges)]
 
     def dfs_rec(self, visited, s, source=None):
         visited[s] = True
@@ -47,7 +47,7 @@ class Graph:
                 "current": s 
             })
 
-        for neighbor in self.adj[s]:
+        for neighbor in sorted(self.adj[s]):
             if not visited[neighbor]:
                 self.dfs_rec(visited, neighbor, s)
 
