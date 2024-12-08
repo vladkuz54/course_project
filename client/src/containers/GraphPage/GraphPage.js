@@ -40,23 +40,25 @@ function GraphPage() {
     async function fetchGraphData() {
         try {
             const response = await axios.get('/api/graph');
-            const sortedGraphData = response.data.map(node => ({
+    
+            
+            const graphData = response.data.map(node => ({
                 ...node,
-                edges: node.edges.sort((a, b) => a - b)
             }));
-            setGraphData(sortedGraphData);
-
-
+            setGraphData(graphData);
+    
+            
             const positions = {};
-            sortedGraphData.forEach(node => {
+            graphData.forEach(node => {
                 positions[node.id] = nodePositions[node.id] || {
                     x: Math.random() * 500,
                     y: Math.random() * 500,
                 };
             });
             setNodePositions(positions);
-
-            visualizeGraph(sortedGraphData, positions);
+    
+            
+            visualizeGraph(graphData, positions);
         } catch (error) {
             console.error('Error fetching graph data:', error);
         }
