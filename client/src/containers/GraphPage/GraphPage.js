@@ -31,7 +31,6 @@ function GraphPage() {
     const [maxEdges, setMaxEdges] = useState(0);
     const cyRef = useRef(null);
     const cyInstance = useRef(null);
-    let layoutInitialized = false; 
 
     
 
@@ -63,6 +62,7 @@ function GraphPage() {
             console.error('Error fetching graph data:', error);
         }
     }
+    
 
   
     function visualizeGraph(graphData, positions) {
@@ -77,23 +77,29 @@ function GraphPage() {
                     target: edge.toString(),
                     color: '#000'
                 }
-            }))
-            )
+            })))
         );
-
+    
         if (cyInstance.current) {
-
             cyInstance.current.json({ elements });
             cyInstance.current.layout({
-                name: 'preset',
-                positions: positions,
+                name: 'cose-bilkent',
                 animate: true,
-                animationDuration: 1000,
+                animationDuration: 700,
                 fit: true,
-                padding: 30
+                padding: 30,
+                randomize: false,
+                nodeRepulsion: 4500,
+                idealEdgeLength: 100,
+                edgeElasticity: 0.45,
+                nestingFactor: 0.1,
+                gravity: 0.25,
+                gravityRangeCompound: 1.5,
+                gravityCompound: 0.5,
+                gravityRange: 2.8,
+                initialEnergyOnIncremental: 1.5
             }).run();
         } else {
-
             const cy = cytoscape({
                 container: cyRef.current,
                 elements,
@@ -119,20 +125,6 @@ function GraphPage() {
                     }
                 ],
                 layout: {
-                    name: 'preset',
-                    positions: positions,
-                    animate: false,
-                    fit: true,
-                    padding: 30
-                },
-                userZoomingEnabled: true,
-                userPanningEnabled: true
-            });
-
-
-            if (!layoutInitialized) {
-                layoutInitialized = true;
-                const layout = cy.layout({
                     name: 'cose-bilkent',
                     animate: true,
                     fit: true,
@@ -147,31 +139,15 @@ function GraphPage() {
                     gravityCompound: 0.5,
                     gravityRange: 2.8,
                     initialEnergyOnIncremental: 1.5
-                });
-
-                layout.run();
-
-                layout.on('layoutstop', () => {
-                    const newPositions = {};
-                    cy.nodes().forEach(node => {
-                        newPositions[node.id()] = node.position();
-                    });
-
-                    setNodePositions(prev => ({ ...prev, ...newPositions }));
-
-                    cy.layout({
-                        name: 'preset',
-                        positions: newPositions,
-                        animate: false,
-                        fit: true,
-                        padding: 30
-                    }).run();
-                });
-            }
-
+                },
+                userZoomingEnabled: true,
+                userPanningEnabled: true
+            });
+    
             cyInstance.current = cy;
         }
     }
+    
     
 
     useEffect(() => {
@@ -278,10 +254,21 @@ function GraphPage() {
                 cyInstance.current.layout({
                     name: 'cose-bilkent',
                     animate: true,
-                    animationDuration: 1000,
-                    fit: true
+                    animationDuration: 700,
+                    fit: true,
+                    padding: 30,
+                    randomize: false,
+                    nodeRepulsion: 4500,
+                    idealEdgeLength: 100,
+                    edgeElasticity: 0.45,
+                    nestingFactor: 0.1,
+                    gravity: 0.25,
+                    gravityRangeCompound: 1.5,
+                    gravityCompound: 0.5,
+                    gravityRange: 2.8,
+                    initialEnergyOnIncremental: 1.5
                 }).run();
-            }, 300);
+            }, 700);
 
             cancelDfs();
             setGraphData(newGraphData);
@@ -356,9 +343,9 @@ function GraphPage() {
                     setTimeout(() => {
                         cyInstance.current.getElementById(`${source}-${target}`).animate({
                             style: { opacity: 1 },
-                            duration: 1000
+                            duration: 700,
                         });
-                    }, 1000);
+                    }, 700);
                 }
             }
 
@@ -366,10 +353,21 @@ function GraphPage() {
                 cyInstance.current.layout({
                     name: 'cose-bilkent',
                     animate: true,
-                    animationDuration: 1000,
-                    fit: true
+                    animationDuration: 700,
+                    fit: true,
+                    padding: 30,
+                    randomize: false,
+                    nodeRepulsion: 4500,
+                    idealEdgeLength: 100,
+                    edgeElasticity: 0.45,
+                    nestingFactor: 0.1,
+                    gravity: 0.25,
+                    gravityRangeCompound: 1.5,
+                    gravityCompound: 0.5,
+                    gravityRange: 2.8,
+                    initialEnergyOnIncremental: 1.5
                 }).run();
-            }, 1000);
+            }, 700);
 
             cancelDfs();
             fetchGraphData();
@@ -395,7 +393,7 @@ function GraphPage() {
             alert('Cannot update graph during DFS animation');
             return;
         }
-
+    
         try {
             const source = parseInt(deleteEdgeSource);
             const target = parseInt(deleteEdgeTarget);
@@ -405,7 +403,7 @@ function GraphPage() {
                 setDeleteEdgeTarget('');
                 return;
             }
-
+    
             const invalidNodes = [source, target].filter(node => !graphData.some(n => n.id === node));
             if (invalidNodes.length > 0) {
                 alert(`Invalid nodes: ${invalidNodes.join(', ')}`);
@@ -413,7 +411,7 @@ function GraphPage() {
                 setDeleteEdgeTarget('');
                 return;
             }
-
+    
             const edgeExists = graphData.some(
                 n => (n.id === source && n.edges.includes(target)) || (n.id === target && n.edges.includes(source))
             );
@@ -423,7 +421,7 @@ function GraphPage() {
                 setDeleteEdgeTarget('');
                 return;
             }
-
+    
             const remainingGraph = graphData.map(n => ({
                 ...n,
                 edges: n.edges.filter(e => !(n.id === source && e === target) && !(n.id === target && e === source)),
@@ -434,46 +432,43 @@ function GraphPage() {
                 setDeleteEdgeTarget('');
                 return;
             }
-
-
+    
             const edgeId = `${source}-${target}`;
             const edge = cyInstance.current.getElementById(edgeId);
-
+    
             if (edge.length > 0) {
-
                 edge.animate(
-                    {
-                        style: { opacity: 0 },
-                        duration: 1000,
-                    },
                     {
                         complete: () => {
                             edge.remove();
-
-                            const updatedPositions = {};
-                            cyInstance.current.nodes().forEach(node => {
-                                updatedPositions[node.id()] = node.position();
-                            });
-                            setNodePositions(updatedPositions);
-
                             cyInstance.current.layout({
-                                name: 'preset',
-                                positions: updatedPositions,
+                                name: 'cose-bilkent',
                                 animate: true,
-                                animationDuration: 1000,
+                                animationDuration: 700,
                                 fit: true,
                                 padding: 30,
+                                randomize: false,
+                                nodeRepulsion: 4500,
+                                idealEdgeLength: 100,
+                                edgeElasticity: 0.45,
+                                nestingFactor: 0.1,
+                                gravity: 0.25,
+                                gravityRangeCompound: 1.5,
+                                gravityCompound: 0.5,
+                                gravityRange: 2.8,
+                                initialEnergyOnIncremental: 1.5
                             }).run();
                         },
                     }
                 );
             }
-
+    
+            
             const response = await axios.post('/api/removeEdgeGraph', { source, target });
             if (response.status === 200) {
-                fetchGraphData();
+                fetchGraphData(); 
             }
-
+    
             cancelDfs();
             setDeleteEdgeSource('');
             setDeleteEdgeTarget('');
@@ -481,7 +476,8 @@ function GraphPage() {
             console.error('Error deleting edge:', error);
         }
     }
- 
+    
+    
     function handleDeleteNodeChange(e) {
         setDeleteNode(e.target.value);
     }
@@ -491,7 +487,7 @@ function GraphPage() {
             alert('Cannot update graph during DFS animation');
             return;
         }
-
+    
         try {
             const node = parseInt(deleteNode);
             if (isNaN(node)) {
@@ -504,78 +500,80 @@ function GraphPage() {
                 setDeleteNode('');
                 return;
             }
-
+    
             if (graphData.length <= 2) {
                 alert('Cannot delete these nodes');
                 setDeleteNode('');
                 return;
             }
-
-
+    
             const remainingGraph = graphData
                 .filter(n => n.id !== node)
                 .map(n => ({
                     ...n,
                     edges: n.edges.filter(e => e !== node),
                 }));
-
-
-            if (remainingGraph[0] && !isGraphConnected(remainingGraph, remainingGraph[0].id)) {
+    
+            if (!isGraphConnected(remainingGraph, remainingGraph[0]?.id)) {
                 alert(`Deleting this node would result in a disconnected graph`);
                 setDeleteNode('');
                 return;
             }
-
-
+    
             const nodeElement = cyInstance.current.getElementById(node.toString());
-
+    
             if (nodeElement.length > 0) {
-
                 const connectedEdges = nodeElement.connectedEdges();
                 connectedEdges.animate(
-                    { style: { opacity: 0 }, duration: 1000 },
+                    { style: { opacity: 0 }, duration: 700 },
                     {
-                        complete: () => {
-                            connectedEdges.remove();
-                        },
+                        complete: () => connectedEdges.remove(),
                     }
                 );
+    
+    
                 nodeElement.animate(
-                    { style: { opacity: 0 }, duration: 1000 },
+                    { style: { opacity: 0 }, duration: 700 },
                     {
                         complete: () => {
                             nodeElement.remove();
-
-                            const updatedPositions = {};
-                            cyInstance.current.nodes().forEach(node => {
-                                updatedPositions[node.id()] = node.position();
-                            });
-                            setNodePositions(updatedPositions);
-
-                            cyInstance.current.layout({
-                                name: 'preset',
-                                positions: updatedPositions,
-                                animate: true,
-                                animationDuration: 1000,
-                                fit: true,
-                            }).run();
+                            setTimeout(() => {
+                                cyInstance.current.layout({
+                                    name: 'cose-bilkent',
+                                    animate: true,
+                                    animationDuration: 700,
+                                    fit: true,
+                                    padding: 30,
+                                    randomize: false,
+                                    nodeRepulsion: 4500,
+                                    idealEdgeLength: 100,
+                                    edgeElasticity: 0.45,
+                                    nestingFactor: 0.1,
+                                    gravity: 0.25,
+                                    gravityRangeCompound: 1.5,
+                                    gravityCompound: 0.5,
+                                    gravityRange: 2.8,
+                                    initialEnergyOnIncremental: 1.5
+                                }).run();
+                            }, 700);
                         },
                     }
                 );
             }
-
-
+    
+    
             const response = await axios.post('/api/removeNodeGraph', { node });
             if (response.status === 200) {
-                fetchGraphData();
+                fetchGraphData(); 
             }
-
+    
             cancelDfs();
             setDeleteNode('');
         } catch (error) {
             console.error('Error deleting node:', error);
         }
     }
+    
 
 
     function handleKeyDown(e, action) {
